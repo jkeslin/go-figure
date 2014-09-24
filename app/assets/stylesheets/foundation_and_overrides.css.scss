@@ -1,0 +1,28 @@
+$aboveandbelow: 50px;
+$contentareaheight: 500px;
+
+.top-nav {
+  height: $aboveandbelow;
+  border: 1px solid black;
+}
+
+.sandbox {
+  background-color: ghostwhite;
+  border: 1px solid black;
+  height: $contentareaheight;
+}
+
+.left-sidebar {
+  height: $contentareaheight;
+  border: 1px solid black;
+}
+
+.right-sidebar {
+  height: $contentareaheight;
+  border: 1px solid black;
+}
+
+.footer {
+  height: $aboveandbelow;
+  border: 1px solid black;
+}
