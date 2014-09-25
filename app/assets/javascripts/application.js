@@ -17,21 +17,28 @@
 //= require_tree .
 
 
-$(function(){
-
+$( document ).ready(function() {
   $(document).foundation();
-  	window.onload = function() {
+
+  	paper.install(window);
+  	// window.onload = function() {
 			paper.setup('myCanvas');
-			with (paper) {
-				var path = new Path();
-				path.strokeColor = 'black';
-				var start = new Point(100, 100);
-				path.moveTo(start);
-				path.lineTo(start.add([ 200, -50 ]));
-				view.size();
-				view.draw();
-		}
-}
+			var path = new Path.Rectangle({
+			point: [75, 75],
+				size: [150, 150],
+				fillColor: 'red'
+			});
+			function onFrame(event) {
+				// debugger;
+				// Each frame, rotate the path by 3 degrees:
+				path.fillColor.hue += 1;
+				path.rotate(2);			
+			}
+			$('#myCanvas').mousemove(function(){
+				onFrame();
+			});
+			
+		// }
 
  //  	window.onload = function() {
 	// 		// Get a reference to the canvas object
