@@ -19,43 +19,119 @@
 
 $( document ).ready(function() {
   $(document).foundation();
+	paper.install(window);
+	paper.setup('myCanvas')
 
-  	paper.install(window);
-  	// window.onload = function() {
-			paper.setup('myCanvas');
-			var path = new Path.Rectangle({
-			point: [75, 75],
-				size: [150, 150],
-				fillColor: 'red'
-			});
-			function onFrame(event) {
-				// debugger;
-				// Each frame, rotate the path by 3 degrees:
-				path.fillColor.hue += 1;
-				path.rotate(2);			
+	var hitOptions = {
+		// segments: true,
+		// stroke: true,
+		fill: true,
+		tolerance: 5
+	};
+
+	function makeTriangle(){
+		var triangle = new Path;
+		triangle.fillColor = "red";
+		triangle.add(new Point(100, 100));
+		triangle.add(new Point(200, 100));
+		triangle.add(new Point(200, 200));
+		triangle.closed = true;
+
+		var lightness = (Math.random() - 0.5) * 0.4 + 0.4;
+		var hue = Math.random() * 360;
+		triangle.fillColor = { hue: hue, saturation: 1, lightness: lightness };
+		triangle.strokeColor = 'black';
+	}
+
+	function makeSquare(){
+		var square = new Path;
+		square.fillColor = "blue";
+		square.add(new Point(100, 100));
+		square.add(new Point(200, 100));
+		square.add(new Point(200, 200));
+		square.add(new Point(100, 200));
+		square.closed = true;
+	}
+
+	function makeRectangle(){
+		var rectangle = new Path;
+		rectangle.fillColor = "green";
+		rectangle.add(new Point(100, 100));
+		rectangle.add(new Point(300, 100));
+		rectangle.add(new Point(300, 200));
+		rectangle.add(new Point(100, 200));
+		rectangle.closed = true;
+	}
+
+	$('#triangle').click(function(){
+		makeTriangle();
+	});
+
+	$('#square').click(function(){
+		makeSquare();
+	});
+
+	$('#rectangle').click(function(){
+		makeRectangle();
+	});
+
+	$('#clear_canvas').click(function(){
+		$('#myCanvas').empty();
+	});
+
+
+
+	var segment, path;
+	var movePath = false;
+
+	function onMouseDown(event) {
+		segment = path = null;
+		var hitResult = project.hitTest(event.point, hitOptions);
+		if (!hitResult){
+			return;
+		}
+
+		if (event.modifiers.shift) {
+			if (hitResult.type == 'segment') {
+				hitResult.segment.remove();
+			};
+			return;
+		}
+
+		if (hitResult) {
+			path = hitResult.item;
+			if (hitResult.type == 'segment') {
+				segment = hitResult.segment;
+			} else if (hitResult.type == 'stroke') {
+				var location = hitResult.location;
+				segment = path.insert(location.index + 1, event.point);
+				path.smooth();
 			}
-			$('#myCanvas').mousemove(function(){
-				onFrame();
-			});
-			
-		// }
+		}
 
- //  	window.onload = function() {
-	// 		// Get a reference to the canvas object
-	// 		var canvas = document.getElementById('myCanvas');
-	// 		// Create an empty project and a view for the canvas:
-	// 		paper.setup(canvas);
-	// 		// Create a Paper.js Path to draw a line into it:
-	// 		var path = new paper.Path();
-	// 		// Give the stroke a color
-	// 		path.strokeColor = 'black';
-	// 		var start = new paper.Point(100, 100);
-	// 		// Move to start and draw a line from there
-	// 		path.moveTo(start);
-	// 		// Note that the plus operator on Point objects does not work
-	// 		// in JavaScript. Instead, we need to call the add() function:
-	// 		path.lineTo(start.add([ 200, -50 ]));
-	// 		// Draw the view now:
-	// 		paper.view.draw();
-	// }
+		movePath = hitResult.type == 'fill';
+		if (movePath){
+			debugger;
+			project.activeLayer.addChild(hitResult.item);
+		}
+	}
+
+	function onMouseMove(event) {
+		project.activeLayer.selected = false;
+		if (event.item)
+			event.item.selected = true;
+	}
+
+	function onMouseDrag(event) {
+		if (segment) {
+			segment.point += event.delta;
+			path.smooth();
+		} else if (path) {
+			path.position += event.delta;
+		}
+	}
+
+	$('#myCanvas').mousedown(function(event){
+		onMouseDown(event);
+	})
 });
